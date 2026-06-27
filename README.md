@@ -44,10 +44,6 @@ Done! Start removing backgrounds immediately
 
 The free trial allows you to process up to 30 images.
 
-To unlock unlimited use, purchase a license key from our itch.io page.
-
-Activating Your License
-
 
 Open Simple Remover
 Click "Enter License Key"
