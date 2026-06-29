@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LogicOven – Offline AI Background Remover for Windows</title>
+  <meta name="description" content="Remove image backgrounds instantly on Windows. Fully offline AI, no subscription, batch processing. Free trial available." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0C1624;
+      --navy-mid:  #111E34;
+      --navy-card: #162238;
+      --teal:      #2EC4B6;
+      --lime:      #A8E63D;
+      --white:     #F5F7FA;
+      --muted:     #7E94B0;
+      --border:    rgba(46,196,182,0.18);
+      --grad:      linear-gradient(120deg, #2EC4B6 0%, #5FD36B 50%, #A8E63D 100%);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(12,22,36,0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 58px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; }
+    .nav-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; color: var(--white); letter-spacing: -0.3px; }
+    .nav-name span { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-cta {
+      background: var(--grad); color: #0C1624; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif; font-size: 13px;
+      border: none; border-radius: 8px; padding: 8px 18px; cursor: pointer;
+      text-decoration: none; letter-spacing: 0.2px;
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 88vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 10%, rgba(46,196,182,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, rgba(168,230,61,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-logo {
+      width: 110px; height: 110px; border-radius: 26px; object-fit: cover;
+      box-shadow: 0 0 0 1px var(--border), 0 12px 48px rgba(46,196,182,0.22);
+      margin-bottom: 28px;
+      animation: logoFloat 4s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(46,196,182,0.1); border: 1px solid rgba(46,196,182,0.28);
+      border-radius: 100px; padding: 5px 14px;
+      font-size: 13px; font-weight: 500; color: var(--teal);
+      margin-bottom: 22px; letter-spacing: 0.3px;
+    }
+    .hero-badge::before { content: '●'; font-size: 9px; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(38px, 6vw, 68px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 18px;
+      max-width: 760px;
+    }
+    .hero h1 .gradient-text {
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(16px, 2.2vw, 20px);
+      color: var(--muted);
+      max-width: 520px;
+      margin-bottom: 28px;
+      line-height: 1.55;
+    }
+
+    /* Stars */
+    .stars {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 36px;
+    }
+    .star-icons { color: #F5C518; font-size: 22px; letter-spacing: 2px; }
+    .star-label { font-size: 14px; color: var(--muted); }
+    .star-label strong { color: var(--white); }
+
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--grad); color: #0C1624;
+      font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px;
+      border: none; border-radius: 12px; padding: 15px 30px; cursor: pointer;
+      text-decoration: none; letter-spacing: -0.2px;
+      box-shadow: 0 6px 28px rgba(46,196,182,0.3);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(46,196,182,0.4); }
+    .btn-primary svg { width: 18px; height: 18px; }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--white);
+      font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px;
+      border: 1px solid var(--border); border-radius: 12px; padding: 14px 24px; cursor: pointer;
+      text-decoration: none;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .btn-ghost:hover { background: rgba(46,196,182,0.07); border-color: var(--teal); }
+
+    .hero-meta {
+      margin-top: 20px; font-size: 13px; color: var(--muted);
+      display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+    }
+    .hero-meta span { display: flex; align-items: center; gap: 5px; }
+    .hero-meta .check { color: var(--lime); font-weight: 700; }
+
+    /* ── FEATURES STRIP ── */
+    .features-strip {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--navy-mid);
+      padding: 22px 24px;
+      overflow: hidden;
+    }
+    .features-inner {
+      display: flex; flex-wrap: wrap; gap: 0;
+      max-width: 900px; margin: 0 auto;
+      justify-content: center;
+    }
+    .feat-pill {
+      display: flex; align-items: center; gap: 9px;
+      padding: 10px 22px;
+      font-size: 14px; font-weight: 500; color: var(--white);
+      border-right: 1px solid var(--border);
+    }
+    .feat-pill:last-child { border-right: none; }
+    .feat-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, rgba(46,196,182,0.18), rgba(168,230,61,0.12));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    /* ── SECTION COMMONS ── */
+    section { padding: 80px 24px; }
+    .section-label {
+      font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700; letter-spacing: -0.8px;
+      line-height: 1.15; margin-bottom: 14px;
+    }
+    .section-sub { font-size: 17px; color: var(--muted); max-width: 520px; line-height: 1.6; }
+    .center { text-align: center; }
+    .center .section-sub { margin: 0 auto; }
+
+    /* ── HOW IT WORKS ── */
+    .how-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px; max-width: 900px; margin: 52px auto 0;
+    }
+    .how-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 24px;
+      position: relative; overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .how-card:hover { border-color: rgba(46,196,182,0.5); transform: translateY(-3px); }
+    .how-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 48px; font-weight: 700; line-height: 1;
+      background: var(--grad); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 14px; opacity: 0.7;
+    }
+    .how-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .how-card p { font-size: 14px; color: var(--muted); line-height: 1.55; }
+
+    /* ── SCREENSHOTS ── */
+    .screenshots-section { background: var(--navy-mid); }
+    .screenshots-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px; max-width: 1000px; margin: 48px auto 0;
+    }
+    .screenshot-card {
+      border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--navy-card);
+      aspect-ratio: 16/10;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .screenshot-card:hover { border-color: var(--teal); transform: translateY(-2px); }
+    .screenshot-card .mock-screen {
+      width: 100%; height: 100%; padding: 18px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .mock-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.08); }
+    .mock-bar.accent { background: linear-gradient(90deg, var(--teal), var(--lime)); width: 60%; }
+    .mock-canvas {
+      flex: 1; border-radius: 8px;
+      background: repeating-conic-gradient(rgba(255,255,255,0.04) 0% 25%, transparent 0% 50%) 0 0 / 18px 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .mock-row { display: flex; gap: 8px; }
+    .mock-btn { height: 26px; border-radius: 6px; background: rgba(46,196,182,0.25); flex: 1; }
+    .screenshot-label {
+      position: absolute; bottom: 12px; left: 14px;
+      font-size: 12px; color: var(--muted); font-weight: 500;
+    }
+
+    /* ── VIDEO ── */
+    .video-wrap {
+      max-width: 760px; margin: 48px auto 0;
+      border-radius: 18px; overflow: hidden;
+      border: 1px solid var(--border);
+      position: relative;
+      background: var(--navy-card);
+      aspect-ratio: 16/9;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .video-thumb {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #0C1624 0%, #162238 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    }
+    .play-btn {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--grad);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 14px rgba(46,196,182,0.12), 0 0 0 28px rgba(46,196,182,0.05);
+      transition: transform 0.2s;
+    }
+    .video-wrap:hover .play-btn { transform: scale(1.08); }
+    .play-btn svg { width: 28px; height: 28px; fill: #0C1624; margin-left: 4px; }
+    .video-caption { font-size: 15px; color: var(--muted); font-weight: 500; }
+    .video-duration {
+      position: absolute; bottom: 14px; right: 16px;
+      background: rgba(0,0,0,0.6); border-radius: 6px; padding: 3px 8px;
+      font-size: 12px; color: var(--muted);
+    }
+
+    /* ── SPECS ── */
+    .specs-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2px; max-width: 860px; margin: 48px auto 0;
+      border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    }
+    .spec-item {
+      background: var(--navy-card); padding: 24px 22px;
+    }
+    .spec-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 8px; }
+    .spec-val { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: var(--white); }
+    .spec-val.green { color: var(--lime); }
+
+    /* ── FAQ ── */
+    .faq-section { background: var(--navy-mid); }
+    .faq-list { max-width: 680px; margin: 48px auto 0; display: flex; flex-direction: column; gap: 4px; }
+    .faq-item {
+      border: 1px solid var(--border); border-radius: 12px;
+      background: var(--navy-card); overflow: hidden;
+    }
+    .faq-q {
+      width: 100%; background: none; border: none;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 18px 22px; cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600;
+      color: var(--white); text-align: left;
+    }
+    .faq-arrow { font-size: 18px; color: var(--teal); transition: transform 0.2s; flex-shrink: 0; }
+    .faq-item.open .faq-arrow { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      font-size: 14px; color: var(--muted); line-height: 1.65;
+      transition: max-height 0.28s ease, padding 0.28s;
+      padding: 0 22px;
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding: 0 22px 18px; }
+
+    /* ── CTA FOOTER ── */
+    .cta-section {
+      text-align: center; padding: 90px 24px;
+      background: linear-gradient(170deg, var(--navy) 0%, rgba(46,196,182,0.06) 50%, var(--navy) 100%);
+      border-top: 1px solid var(--border);
+    }
+    .cta-section h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(30px, 5vw, 52px);
+      font-weight: 700; letter-spacing: -1px; margin-bottom: 16px;
+    }
+    .cta-section p { font-size: 17px; color: var(--muted); margin-bottom: 36px; }
+    .cta-fine {
+      margin-top: 16px; font-size: 13px; color: var(--muted);
+    }
+    .cta-fine a { color: var(--teal); text-decoration: none; }
+
+    /* ── FOOTER BAR ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      font-size: 13px; color: var(--muted);
+      background: var(--navy);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--teal); }
+    .footer-links { display: flex; gap: 20px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .feat-pill { border-right: none; border-bottom: 1px solid var(--border); width: 100%; }
+      .feat-pill:last-child { border-bottom: none; }
+      nav { padding: 0 16px; }
+      .nav-name { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-logo { animation: none; }
+      * { transition-duration: 0s !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <img class="nav-logo" src="SimpleRemover_icon_512x512.png" alt="LogicOven" />
+    <span class="nav-name">Logic<span>Oven</span></span>
+  </a>
+  <a class="nav-cta" href="#download">Download Free Trial</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <img class="hero-logo" src="SimpleRemover_icon_512x512.png" alt="LogicOven Background Remover" />
+  <div class="hero-badge">Offline AI · No Cloud Required</div>
+  <h1>Remove Backgrounds<br><span class="gradient-text">Without the Internet.</span></h1>
+  <p class="hero-sub">Professional AI background removal that runs entirely on your Windows PC. No uploads, no waiting, no subscription.</p>
+
+  <div class="stars">
+    <span class="star-icons">★★★★★</span>
+    <span class="star-label"><strong>4.9</strong> · Trusted by 12,000+ users</span>
+  </div>
+
+  <div class="hero-actions">
+    <a class="btn-primary" href="#download" id="download">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Free Trial
+    </a>
+    <a class="btn-ghost" href="#video">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Watch Demo
+    </a>
+  </div>
+
+  <div class="hero-meta">
+    <span><span class="check">✓</span> Works completely offline</span>
+    <span><span class="check">✓</span> No subscription</span>
+    <span><span class="check">✓</span> Windows 10 &amp; 11</span>
+    <span><span class="check">✓</span> PNG, JPG, WEBP</span>
+    <span><span class="check">✓</span> Batch processing</span>
+  </div>
+</section>
+
+<!-- FEATURE PILLS -->
+<div class="features-strip">
+  <div class="features-inner">
+    <div class="feat-pill"><div class="feat-icon">🔒</div> 100% Offline</div>
+    <div class="feat-pill"><div class="feat-icon">⚡</div> Under 3 Seconds</div>
+    <div class="feat-pill"><div class="feat-icon">🖼️</div> PNG · JPG · WEBP</div>
+    <div class="feat-pill"><div class="feat-icon">📦</div> Batch 100+ Images</div>
+    <div class="feat-pill"><div class="feat-icon">💸</div> One-Time Purchase</div>
+    <div class="feat-pill"><div class="feat-icon">🖥️</div> Windows 10 / 11</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="center">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">Three steps. Done.</h2>
+    <p class="section-sub">No accounts, no cloud, no confusion. Open the app, drop your images, get results.</p>
+  </div>
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-num">01</div>
+      <h3>Open &amp; Import</h3>
+      <p>Drag a single image or drop an entire folder. LogicOven accepts PNG, JPG, and WEBP up to 32 MP.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">02</div>
+      <h3>AI Processes Locally</h3>
+      <p>Our on-device neural network detects edges in seconds — your files never leave your machine.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">03</div>
+      <h3>Export &amp; Use</h3>
+      <p>Save as transparent PNG or choose a custom background color. Batch export 100+ images at once.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENSHOTS -->
+<section class="screenshots-section" id="screenshots">
+  <div class="center">
+    <div class="section-label">Screenshots</div>
+    <h2 class="section-title">Clean, focused interface</h2>
+    <p class="section-sub">Built for speed — everything you need, nothing you don't.</p>
+  </div>
+  <div class="screenshots-grid">
+    <div class="screenshot-card">
+      <div class="mock-screen">
+        <div class="mock-bar accent"></div>
+        <div class="mock-bar" style="width:40%"></div>
+        <div class="mock-canvas">🎈</div>
+        <div class="mock-row"><div class="mock-btn"></div><div class="mock-btn" style="flex:0.5;background:rgba(168,230,61,0.3)"></div></div>
+      </div>
+      <div class="screenshot-label">Single Image Mode</div>
+    </div>
+    <div class="screenshot-card">
+      <div class="mock-screen">
+        <div class="mock-bar accent" style="width:80%"></div>
+        <div class="mock-row" style="flex:1;gap:6px">
+          <div style="flex:1;border-radius:6px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-size:22px">📁</div>
+          <div style="flex:2;display:flex;flex-direction:column;gap:5px;justify-content:center">
+            <div class="mock-bar" style="width:90%"></div>
+            <div class="mock-bar" style="width:70%"></div>
+            <div class="mock-bar" style="width:55%"></div>
+            <div class="mock-bar" style="width:80%"></div>
+          </div>
+        </div>
+        <div class="mock-btn" style="height:32px;background:linear-gradient(90deg,rgba(46,196,182,0.4),rgba(168,230,61,0.3))"></div>
+      </div>
+      <div class="screenshot-label">Batch Processing</div>
+    </div>
+    <div class="screenshot-card">
+      <div class="mock-screen">
+        <div class="mock-bar accent" style="width:50%"></div>
+        <div class="mock-canvas" style="flex:1">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;width:80%;height:70%">
+            <div style="border-radius:4px;background:rgba(46,196,182,0.15);display:flex;align-items:center;justify-content:center;font-size:16px">🌊</div>
+            <div style="border-radius:4px;background:rgba(168,230,61,0.15);display:flex;align-items:center;justify-content:center;font-size:16px">🌿</div>
+            <div style="border-radius:4px;background:rgba(255,255,255,0.06)"></div>
+            <div style="border-radius:4px;background:rgba(255,255,255,0.06)"></div>
+          </div>
+        </div>
+      </div>
+      <div class="screenshot-label">Background Presets</div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO -->
+<section id="video">
+  <div class="center">
+    <div class="section-label">See It In Action</div>
+    <h2 class="section-title">Watch the demo</h2>
+  </div>
+  <div class="video-wrap" onclick="this.innerHTML='<iframe width=\'100%\' height=\'100%\' src=\'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1\' frameborder=\'0\' allow=\'autoplay; encrypted-media\' allowfullscreen style=\'border:none;border-radius:18px\'></iframe>'" title="Play demo video">
+    <div class="video-thumb">
+      <div class="play-btn">
+        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </div>
+      <div class="video-caption">LogicOven — Full Product Demo</div>
+    </div>
+    <div class="video-duration">2:34</div>
+  </div>
+</section>
+
+<!-- SPECS -->
+<section style="background:var(--navy-mid)">
+  <div class="center">
+    <div class="section-label">System Requirements</div>
+    <h2 class="section-title">Built for modern Windows</h2>
+  </div>
+  <div class="specs-grid">
+    <div class="spec-item">
+      <div class="spec-label">Operating System</div>
+      <div class="spec-val">Windows 10 / 11</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-label">Architecture</div>
+      <div class="spec-val">64-bit</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-label">RAM</div>
+      <div class="spec-val">4 GB min</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-label">Storage</div>
+      <div class="spec-val">250 MB</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-label">Internet Required</div>
+      <div class="spec-val green">Never</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-label">License</div>
+      <div class="spec-val">Lifetime</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="center">
+    <div class="section-label">Questions</div>
+    <h2 class="section-title">Frequently asked</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item open">
+      <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Does it really work with no internet? <span class="faq-arrow">+</span>
+      </button>
+      <div class="faq-a">Yes — the AI model is bundled inside the installer. After download, LogicOven never makes a network request. Your images stay on your hard drive at all times.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        What's included in the free trial? <span class="faq-arrow">+</span>
+      </button>
+      <div class="faq-a">The trial lets you process up to 20 images to evaluate quality. Full export at original resolution with no watermarks is included. Upgrade once to unlock unlimited use forever.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        How does it handle hair and complex edges? <span class="faq-arrow">+</span>
+      </button>
+      <div class="faq-a">LogicOven uses a deep edge-detection network trained specifically on fine detail. Hair, fur, and translucent objects are handled with sub-pixel accuracy — comparable to cloud-based tools.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Can I process a whole folder at once? <span class="faq-arrow">+</span>
+      </button>
+      <div class="faq-a">Batch mode accepts entire folders (or drag-and-drop multiple files) and processes them in parallel, using all available CPU cores. A folder of 100 images typically completes in under two minutes.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Is there a monthly fee? <span class="faq-arrow">+</span>
+      </button>
+      <div class="faq-a">No. LogicOven is a one-time purchase. You get lifetime use, all future updates, and priority support — no recurring charges ever.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="download">
+  <h2>Ready to remove backgrounds<br><span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">without limits?</span></h2>
+  <p>Free trial · No account needed · Runs on your PC</p>
+  <a class="btn-primary" href="#" style="font-size:18px;padding:18px 38px;margin:0 auto">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download Free Trial
+  </a>
+  <div class="cta-fine">Windows 10 &amp; 11 · 64-bit · ~50 MB · <a href="#">Privacy Policy</a></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>© 2025 LogicOven. All rights reserved.</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Support</a>
+    <a href="#">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
